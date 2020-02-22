@@ -10,7 +10,7 @@
 // Included libs
 #include "Enemy.h"
 #include "Particle.h"
-
+#include "Lights.h"
 #include "Spawner.h"
 #include "Lava.h"
 #include "Ice.h"
@@ -67,13 +67,17 @@ bool playerAlive;
 long killTime;
 int lives = 3;
 int prevPosition_ice;              //I will need this for the ice story
- 
-// POOLS
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+//--------- POOLS-------------------------------------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 int lifeLEDs[3] = {52, 50, 40};
+
+
 Enemy enemyPool[10] = {
     Enemy(), Enemy(), Enemy(), Enemy(), Enemy(), Enemy(), Enemy(), Enemy(), Enemy(), Enemy()
 };
 int const enemyCount = 10;
+
 Particle particlePool[40] = {
     Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle(), Particle()
 };
@@ -83,19 +87,27 @@ Spawner spawnPool[2] = {
     Spawner(), Spawner()
 };
 int const spawnCount = 2;
+
 Lava lavaPool[4] = {
     Lava(), Lava(), Lava(), Lava()
 };
 int const lavaCount = 4;
 
+Lights lightsPool[10] = {
+    Lights(), Lights(), Lights()
+};
+int const lightsCount = 3;
+
 Ice icePool[1] = {
     Ice()
 };
 int const iceCount = 1;
+
 Conveyor conveyorPool[2] = {
     Conveyor(), Conveyor()
 };
 int const conveyorCount = 2;
+
 Boss boss = Boss();
 
 CRGB leds[NUM_LEDS];
@@ -123,6 +135,12 @@ void setup() {
     
     loadLevel();
 }
+
+
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//---------LOOP--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void loop() {
     long mm = millis();
@@ -204,6 +222,7 @@ void loop() {
             tickBoss();
             tickLava();
             tickIce();
+            tickLights();
             tickEnemies();
             drawPlayer();
             drawAttack();
@@ -273,9 +292,9 @@ void loop() {
 }
 
 
-// ---------------------------------
-// ------------ LEVELS -------------
-// ---------------------------------
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ------------ LEVELS ----------------------------------------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void loadLevel(){
     updateLives();
     cleanupLevel();
@@ -291,6 +310,8 @@ void loadLevel(){
         case 1:
             // Spawning enemies at exit every 2 seconds
             spawnPool[0].Spawn(1000, 3000, 2, 0, 0);
+            lightsPool[0].Spawn(500,800);
+            
             break;
         case 2:
         // Lava intro
@@ -412,6 +433,13 @@ void cleanupLevel(){
     for(int i = 0; i<conveyorCount; i++){
         conveyorPool[i].Kill();
     }
+    for(int i = 0; i<lightsCount; i++){
+        lightsPool[i].Kill();
+    }
+    for(int i = 0; i<iceCount; i++){
+        icePool[i].Kill();
+    }
+    
     boss.Kill();
 }
 
@@ -630,6 +658,21 @@ void tickIce(){
 }
 
 }
+
+void tickLights(){
+   for(int i = 0; i<lightsCount; i++){
+      if(enemyPool[i].Alive()) {
+          for(int ld = getLED(lightsPool[i]._left); ld < getLED(lightsPool[i]._right); ld++ ){
+              leds[ld] = CRGB(100, 0, 0);
+          }  
+      }
+   }
+}
+
+
+
+
+
 bool tickParticles(){
     bool stillActive = false;
     for(int p = 0; p < particleCount; p++){

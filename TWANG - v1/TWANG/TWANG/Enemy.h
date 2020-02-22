@@ -19,8 +19,8 @@ class Enemy
 
     
     bool _fear;
-    int _safety
-    int _fire
+    int _safety;
+    int _fire;
     
 };
 
@@ -41,8 +41,8 @@ void Enemy::Tick(_posPlayer){
         //    _pos = _origin + (sin((millis()/3000.0)*_sp)*_wobble);
         //}else{
         //change direction with fear or 
-        if (_fear && _posPlayer< _pos && dir == 0||_fear && _posPlayer> _pos && _dir == 1|| _fear && _pos -_posPlayer>_safety && dir == 1||_fear && _posPlayer-_pos>safety && _dir == 0){_dir=1-_dir;}
-            if(_dir == 0){
+        if (_fear && abs(_pos-_posPlayer)<_safety && playerSide && dir == 0||_fear && _posPlayer> _pos && _dir == 1|| _fear && _pos -_posPlayer>2*_safety && dir == 1||_fear && _posPlayer-_pos>2*_safety && _dir == 0){_dir=1-_dir;}
+            if(_dir == -1){
                 _pos -= _sp;
             }else{
                 _pos += _sp;
